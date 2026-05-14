@@ -1,10 +1,5 @@
-import { EmptyState } from "@/components/ui";
+import { DoctorPrescriptionsPage as DoctorPrescriptionsView } from "./doctor-prescriptions-page";
 
 export default function DoctorPrescriptionsPage() {
-  return (
-    <EmptyState
-      message="Created prescriptions will appear in this workspace."
-      title="No prescriptions"
-    />
-  );
+  return <DoctorPrescriptionsView />;
 }
