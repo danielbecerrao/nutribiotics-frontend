@@ -1,5 +1,5 @@
 export { AuthProvider, useAuth } from "./auth-context";
-export { getCurrentProfile } from "./api";
+export { getCurrentProfile, login } from "./api";
 export { RequireAuth, RequireRole } from "./guards";
 export {
   getRoleHomePath,
