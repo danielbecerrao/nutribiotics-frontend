@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  getPdfFilename,
   toCreatePrescriptionPayload,
   toDoctorPrescriptionsApiQuery,
+  toPatientPrescriptionsApiQuery,
 } from "./api";
 
 describe("toDoctorPrescriptionsApiQuery", () => {
@@ -36,6 +38,36 @@ describe("toDoctorPrescriptionsApiQuery", () => {
       page: 1,
       status: undefined,
       to: undefined,
+    });
+  });
+});
+
+describe("toPatientPrescriptionsApiQuery", () => {
+  it("normalizes patient prescription list filters for the API", () => {
+    expect(
+      toPatientPrescriptionsApiQuery({
+        limit: 10,
+        page: 2,
+        status: "consumed",
+      }),
+    ).toEqual({
+      limit: 10,
+      page: 2,
+      status: "consumed",
+    });
+  });
+
+  it("omits empty patient status filters", () => {
+    expect(
+      toPatientPrescriptionsApiQuery({
+        limit: 10,
+        page: 1,
+        status: "",
+      }),
+    ).toEqual({
+      limit: 10,
+      page: 1,
+      status: undefined,
     });
   });
 });
@@ -78,5 +110,19 @@ describe("toCreatePrescriptionPayload", () => {
         },
       ],
     });
+  });
+});
+
+describe("getPdfFilename", () => {
+  it("extracts a quoted filename from content disposition", () => {
+    expect(
+      getPdfFilename('attachment; filename="prescription-RX-1.pdf"', "fallback"),
+    ).toBe("prescription-RX-1.pdf");
+  });
+
+  it("uses a fallback filename when the header is unavailable", () => {
+    expect(getPdfFilename(null, "prescription_1")).toBe(
+      "prescription-prescription_1.pdf",
+    );
   });
 });

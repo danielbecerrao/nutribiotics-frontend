@@ -1,11 +1,16 @@
 export {
+  consumePrescription,
   createPrescription,
+  downloadPrescriptionPdf,
+  getPdfFilename,
   getPrescriptionById,
   listDoctorPrescriptions,
+  listPatientPrescriptions,
   toCreatePrescriptionPayload,
   toDoctorPrescriptionsApiQuery,
+  toPatientPrescriptionsApiQuery,
 } from "./api";
-export type { DoctorPrescriptionsQuery } from "./api";
+export type { DoctorPrescriptionsQuery, PatientPrescriptionsQuery } from "./api";
 export { prescriptionStatuses } from "./types";
 export type {
   Prescription,

@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/api";
+import { apiFetch, buildApiUrl } from "@/lib/api";
 import type { ApiQueryParams, PaginatedResponse } from "@/lib/api";
 import type {
   CreatePrescriptionInput,
@@ -15,6 +15,12 @@ export interface DoctorPrescriptionsQuery {
   to?: string;
 }
 
+export interface PatientPrescriptionsQuery {
+  limit?: number;
+  page?: number;
+  status?: PrescriptionStatus | "";
+}
+
 interface ListDoctorPrescriptionsOptions {
   signal?: AbortSignal;
 }
@@ -28,6 +34,19 @@ export function listDoctorPrescriptions(
     accessToken,
     cache: "no-store",
     query: toDoctorPrescriptionsApiQuery(query),
+    signal: options.signal,
+  });
+}
+
+export function listPatientPrescriptions(
+  accessToken: string,
+  query: PatientPrescriptionsQuery = {},
+  options: ListDoctorPrescriptionsOptions = {},
+) {
+  return apiFetch<PaginatedResponse<Prescription>>("/me/prescriptions", {
+    accessToken,
+    cache: "no-store",
+    query: toPatientPrescriptionsApiQuery(query),
     signal: options.signal,
   });
 }
@@ -54,6 +73,48 @@ export function getPrescriptionById(accessToken: string, prescriptionId: string)
   );
 }
 
+export function consumePrescription(
+  accessToken: string,
+  prescriptionId: string,
+) {
+  return apiFetch<Prescription>(
+    `/prescriptions/${encodeURIComponent(prescriptionId)}/consume`,
+    {
+      accessToken,
+      cache: "no-store",
+      method: "PUT",
+    },
+  );
+}
+
+export async function downloadPrescriptionPdf(
+  accessToken: string,
+  prescriptionId: string,
+) {
+  const response = await fetch(
+    buildApiUrl(`/prescriptions/${encodeURIComponent(prescriptionId)}/pdf`),
+    {
+      cache: "no-store",
+      headers: {
+        Accept: "application/pdf",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(response.statusText || "Unable to download prescription PDF.");
+  }
+
+  return {
+    blob: await response.blob(),
+    filename: getPdfFilename(
+      response.headers.get("Content-Disposition"),
+      prescriptionId,
+    ),
+  };
+}
+
 export function toDoctorPrescriptionsApiQuery(
   query: DoctorPrescriptionsQuery,
 ): ApiQueryParams {
@@ -63,6 +124,16 @@ export function toDoctorPrescriptionsApiQuery(
     page: query.page,
     status: query.status || undefined,
     to: query.to ? toEndOfDayIso(query.to) : undefined,
+  };
+}
+
+export function toPatientPrescriptionsApiQuery(
+  query: PatientPrescriptionsQuery,
+): ApiQueryParams {
+  return {
+    limit: query.limit,
+    page: query.page,
+    status: query.status || undefined,
   };
 }
 
@@ -95,4 +166,13 @@ function normalizeOptionalString(value: string | undefined) {
   const normalized = value?.trim();
 
   return normalized ? normalized : undefined;
+}
+
+export function getPdfFilename(
+  contentDisposition: string | null,
+  fallbackId: string,
+) {
+  const match = contentDisposition?.match(/filename="?([^";]+)"?/i);
+
+  return match?.[1] ?? `prescription-${fallbackId}.pdf`;
 }
