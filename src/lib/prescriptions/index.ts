@@ -1,5 +1,6 @@
 export {
   createPrescription,
+  getPrescriptionById,
   listDoctorPrescriptions,
   toCreatePrescriptionPayload,
   toDoctorPrescriptionsApiQuery,
