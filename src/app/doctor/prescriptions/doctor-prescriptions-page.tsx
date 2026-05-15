@@ -43,6 +43,7 @@ interface ListState {
 
 interface FilterValues {
   from: string;
+  q: string;
   status: PrescriptionStatus | "";
   to: string;
 }
@@ -153,6 +154,10 @@ export function DoctorPrescriptionsPage() {
       params.set("to", nextQuery.to);
     }
 
+    if (nextQuery.q) {
+      params.set("q", nextQuery.q);
+    }
+
     if (nextQuery.page > 1) {
       params.set("page", String(nextQuery.page));
     }
@@ -166,7 +171,10 @@ export function DoctorPrescriptionsPage() {
   }
 
   const hasFilters = Boolean(
-    currentFilters.status || currentFilters.from || currentFilters.to,
+    currentFilters.status ||
+      currentFilters.from ||
+      currentFilters.to ||
+      currentFilters.q,
   );
 
   return (
@@ -187,7 +195,7 @@ export function DoctorPrescriptionsPage() {
       </div>
 
       <form
-        className="grid gap-3 rounded-md border border-border bg-surface p-4 shadow-sm md:grid-cols-[minmax(160px,220px)_minmax(160px,220px)_minmax(160px,220px)_auto_auto]"
+        className="grid gap-3 rounded-md border border-border bg-surface p-4 shadow-sm md:grid-cols-[minmax(150px,200px)_minmax(150px,200px)_minmax(150px,200px)_minmax(180px,1fr)_auto_auto]"
         key={searchParams.toString()}
         onSubmit={handleSubmit}
       >
@@ -209,6 +217,13 @@ export function DoctorPrescriptionsPage() {
           label="To"
           name="to"
           type="date"
+        />
+        <Input
+          defaultValue={currentFilters.q}
+          label="Search"
+          name="q"
+          placeholder="Notes or item"
+          type="search"
         />
         <Button className="self-end" type="submit">
           Apply
@@ -321,6 +336,7 @@ function getFiltersFromSearchParams(
 ): FilterValues {
   return {
     from: searchParams.get("from") ?? "",
+    q: searchParams.get("q") ?? "",
     status: getStatusFromSearchParams(searchParams),
     to: searchParams.get("to") ?? "",
   };
@@ -331,6 +347,7 @@ function getFiltersFromForm(form: HTMLFormElement): FilterValues {
 
   return {
     from: getStringFormValue(formData, "from"),
+    q: getStringFormValue(formData, "q").trim(),
     status: toFilterStatus(getStringFormValue(formData, "status")),
     to: getStringFormValue(formData, "to"),
   };

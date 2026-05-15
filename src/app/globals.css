@@ -24,6 +24,30 @@
   --info-soft: #edf5ff;
 }
 
+:root[data-theme="dark"] {
+  --background: #171a18;
+  --foreground: #eef2ee;
+  --surface: #202620;
+  --muted: #2d352e;
+  --muted-foreground: #a7b4aa;
+  --border: #3a453d;
+  --border-strong: #59665d;
+  --primary: #4fb38f;
+  --primary-strong: #76c9aa;
+  --danger: #f97066;
+  --danger-strong: #fda29b;
+  --danger-soft: #3b201e;
+  --success: #61c285;
+  --success-strong: #8bdca8;
+  --success-soft: #1d3327;
+  --warning: #e3a23c;
+  --warning-strong: #f1c06a;
+  --warning-soft: #3b2e18;
+  --info: #61a5df;
+  --info-strong: #94c7ef;
+  --info-soft: #1d3040;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
