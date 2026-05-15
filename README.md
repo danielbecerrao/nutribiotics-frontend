@@ -1,36 +1,167 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nutribiotics Prescriptions Web
 
-## Getting Started
+Next.js frontend for the prescription management platform. It provides role
+specific workspaces for admin, doctor, and patient users, talks to the NestJS
+API through bearer tokens, and includes search, PDF download actions, live admin
+metrics, audit logs, and persisted theme preference.
 
-First, run the development server:
+## Requirements
+
+- Node.js 20 or newer.
+- npm 10 or newer.
+- Running backend API.
+- Docker and Docker Compose if running the full stack with containers.
+
+## Local Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create the local environment file:
+
+```bash
+cp .env.local.example .env.local
+```
+
+3. Point `NEXT_PUBLIC_API_BASE_URL` to the backend API. The example value
+   matches Docker Compose:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
+```
+
+If you run the backend directly from `backend/` with the default `PORT=3000`,
+set this value to `http://localhost:3000`.
+
+4. Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The web app runs on `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Docker Compose
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+From the parent workspace directory, copy the root `.env.example` to `.env` and
+start the full stack:
 
-## Learn More
+```bash
+cd ..
+cp .env.example .env
+docker compose up --build
+```
 
-To learn more about Next.js, take a look at the following resources:
+Docker Compose exposes:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Frontend: `http://localhost:3000`
+- API: `http://localhost:3001`
+- Swagger: `http://localhost:3001/docs`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Environment Variables
 
-## Deploy on Vercel
+| Variable | Purpose | Example |
+| --- | --- | --- |
+| `NEXT_PUBLIC_API_BASE_URL` | Public API base URL used by browser requests. | `http://localhost:3001` |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The value must not include a trailing slash. The app normalizes the URL before
+building API requests.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Seed Accounts
+
+Use the backend seed before logging in:
+
+```bash
+cd ../backend
+npm run prisma:seed
+```
+
+Available accounts:
+
+| Role | Email | Password | Initial route |
+| --- | --- | --- | --- |
+| Admin | `admin@test.com` | `admin123` | `/admin` |
+| Doctor | `dr@test.com` | `dr123` | `/doctor/prescriptions` |
+| Patient | `patient@test.com` | `patient123` | `/patient/prescriptions` |
+
+## Main Routes
+
+| Route | Roles | Description |
+| --- | --- | --- |
+| `/login` | Public | Authenticates a user and stores the session locally. |
+| `/admin` | Admin | Shows metrics, date filters, live updates, top doctors, and audit logs. |
+| `/doctor/prescriptions` | Doctor | Lists authored prescriptions with status, date, order, and text filters. |
+| `/doctor/prescriptions/new` | Doctor | Creates a prescription with dynamic manual items. |
+| `/doctor/prescriptions/[id]` | Doctor | Shows prescription detail. |
+| `/patient/prescriptions` | Patient | Lists owned prescriptions with status/search filters and consume/PDF actions. |
+| `/patient/prescriptions/[id]` | Patient | Shows owned prescription detail and patient actions. |
+
+## Technical Decisions
+
+### Authentication
+
+The frontend stores the authenticated session in local storage and restores the
+current user through `/auth/profile` on app load. API requests send the access
+token as a bearer token. After login, users are redirected to the home route for
+their role.
+
+### RBAC
+
+Route guards are implemented client side with role-aware layout wrappers. The
+frontend prevents users from entering disallowed workspaces and redirects them
+to the correct role home. The backend remains the source of truth for access
+control.
+
+### Admin Metrics
+
+The admin dashboard loads metrics through `GET /admin/metrics` and subscribes to
+`GET /admin/metrics/stream` with `EventSource`. The stream URL includes the
+access token as an `access_token` query parameter because native `EventSource`
+does not support custom headers.
+
+### Pagination and Filters
+
+Doctor and patient prescription lists keep filters in the URL query string.
+Supported filters include page, status, date range where applicable, ordering,
+and text search. API helpers omit empty values before making requests.
+
+### PDF Download
+
+PDF files are generated by the backend. The frontend calls
+`GET /prescriptions/:id/pdf`, reads the filename from the content-disposition
+header when available, and downloads the blob in the browser.
+
+### Theme Preference
+
+The theme provider persists `light` or `dark` in local storage under
+`nutribiotics.theme` and applies it through the document `data-theme` attribute.
+
+## Tests and Checks
+
+```bash
+npm run lint
+npm run test
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001 npm run build
+npm audit --audit-level=high
+```
+
+## Deployment URLs
+
+Deployment URLs are not available yet.
+
+- Frontend: pending
+- API: pending
+
+## Reviewer Acceptance Checklist
+
+- Login redirects each role to its workspace.
+- Role guards protect admin, doctor, and patient routes.
+- Doctors can create prescriptions with manual items.
+- Patients only see their prescriptions and can consume or download PDFs.
+- Admin can review date-filtered metrics and audit logs.
+- Lists expose pagination and filters backed by the API.
+- The README includes the setup commands needed to run the frontend locally or
+  with Docker Compose.
