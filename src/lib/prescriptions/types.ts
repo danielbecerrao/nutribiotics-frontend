@@ -46,3 +46,16 @@ export interface Prescription {
   patientId: string;
   status: PrescriptionStatus;
 }
+
+export interface CreatePrescriptionItemInput {
+  dosage?: string;
+  instructions?: string;
+  name: string;
+  quantity?: number;
+}
+
+export interface CreatePrescriptionInput {
+  items: CreatePrescriptionItemInput[];
+  notes?: string;
+  patientId: string;
+}

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { toDoctorPrescriptionsApiQuery } from "./api";
+import {
+  toCreatePrescriptionPayload,
+  toDoctorPrescriptionsApiQuery,
+} from "./api";
 
 describe("toDoctorPrescriptionsApiQuery", () => {
   it("normalizes doctor prescription list filters for the API", () => {
@@ -33,6 +36,47 @@ describe("toDoctorPrescriptionsApiQuery", () => {
       page: 1,
       status: undefined,
       to: undefined,
+    });
+  });
+});
+
+describe("toCreatePrescriptionPayload", () => {
+  it("normalizes optional values and keeps required item data", () => {
+    expect(
+      toCreatePrescriptionPayload({
+        patientId: "patient_1",
+        notes: " Follow up ",
+        items: [
+          {
+            dosage: " 1 daily ",
+            instructions: " After breakfast ",
+            name: " Vitamin D ",
+            quantity: 30,
+          },
+          {
+            dosage: "",
+            instructions: "",
+            name: "Omega 3",
+          },
+        ],
+      }),
+    ).toEqual({
+      patientId: "patient_1",
+      notes: "Follow up",
+      items: [
+        {
+          dosage: "1 daily",
+          instructions: "After breakfast",
+          name: "Vitamin D",
+          quantity: 30,
+        },
+        {
+          dosage: undefined,
+          instructions: undefined,
+          name: "Omega 3",
+          quantity: undefined,
+        },
+      ],
     });
   });
 });

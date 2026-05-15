@@ -1,6 +1,11 @@
 import { apiFetch } from "@/lib/api";
 import type { ApiQueryParams, PaginatedResponse } from "@/lib/api";
-import type { Prescription, PrescriptionStatus } from "./types";
+import type {
+  CreatePrescriptionInput,
+  CreatePrescriptionItemInput,
+  Prescription,
+  PrescriptionStatus,
+} from "./types";
 
 export interface DoctorPrescriptionsQuery {
   from?: string;
@@ -27,6 +32,18 @@ export function listDoctorPrescriptions(
   });
 }
 
+export function createPrescription(
+  accessToken: string,
+  input: CreatePrescriptionInput,
+) {
+  return apiFetch<Prescription>("/prescriptions", {
+    accessToken,
+    body: toCreatePrescriptionPayload(input),
+    cache: "no-store",
+    method: "POST",
+  });
+}
+
 export function toDoctorPrescriptionsApiQuery(
   query: DoctorPrescriptionsQuery,
 ): ApiQueryParams {
@@ -45,4 +62,27 @@ function toStartOfDayIso(value: string) {
 
 function toEndOfDayIso(value: string) {
   return `${value}T23:59:59.999Z`;
+}
+
+export function toCreatePrescriptionPayload(input: CreatePrescriptionInput) {
+  return {
+    patientId: input.patientId,
+    notes: normalizeOptionalString(input.notes),
+    items: input.items.map(toCreatePrescriptionItemPayload),
+  };
+}
+
+function toCreatePrescriptionItemPayload(item: CreatePrescriptionItemInput) {
+  return {
+    name: item.name.trim(),
+    dosage: normalizeOptionalString(item.dosage),
+    quantity: item.quantity,
+    instructions: normalizeOptionalString(item.instructions),
+  };
+}
+
+function normalizeOptionalString(value: string | undefined) {
+  const normalized = value?.trim();
+
+  return normalized ? normalized : undefined;
 }
