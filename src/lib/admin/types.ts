@@ -1,9 +1,23 @@
+import type { Prescription } from "@/lib/prescriptions";
+
 export interface AdminMetricsUser {
   createdAt: string;
   email: string;
   id: string;
   name: string;
   role: "admin" | "doctor" | "patient";
+}
+
+export type AdminAuditLogAction = "prescription_consumed";
+
+export interface AdminAuditLog {
+  action: AdminAuditLogAction;
+  actor: AdminMetricsUser | null;
+  createdAt: string;
+  id: string;
+  metadata: Record<string, unknown> | null;
+  prescription: Prescription | null;
+  prescriptionId: string | null;
 }
 
 export interface AdminMetricsDoctor {

@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   clearSession: vi.fn(),
   pathname: "/doctor/prescriptions",
   replace: vi.fn(),
+  toggleTheme: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -41,6 +42,13 @@ vi.mock("@/lib/auth", () => ({
       name: "Doctor User",
       role: "doctor",
     },
+  }),
+}));
+
+vi.mock("@/lib/theme", () => ({
+  useTheme: () => ({
+    theme: "light",
+    toggleTheme: mocks.toggleTheme,
   }),
 }));
 

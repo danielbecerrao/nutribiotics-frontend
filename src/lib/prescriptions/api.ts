@@ -11,6 +11,7 @@ export interface DoctorPrescriptionsQuery {
   from?: string;
   limit?: number;
   page?: number;
+  q?: string;
   status?: PrescriptionStatus | "";
   to?: string;
 }
@@ -18,6 +19,7 @@ export interface DoctorPrescriptionsQuery {
 export interface PatientPrescriptionsQuery {
   limit?: number;
   page?: number;
+  q?: string;
   status?: PrescriptionStatus | "";
 }
 
@@ -122,6 +124,7 @@ export function toDoctorPrescriptionsApiQuery(
     from: query.from ? toStartOfDayIso(query.from) : undefined,
     limit: query.limit,
     page: query.page,
+    q: query.q || undefined,
     status: query.status || undefined,
     to: query.to ? toEndOfDayIso(query.to) : undefined,
   };
@@ -133,6 +136,7 @@ export function toPatientPrescriptionsApiQuery(
   return {
     limit: query.limit,
     page: query.page,
+    q: query.q || undefined,
     status: query.status || undefined,
   };
 }

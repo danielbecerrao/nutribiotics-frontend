@@ -13,6 +13,7 @@ describe("toDoctorPrescriptionsApiQuery", () => {
         from: "2026-05-01",
         limit: 10,
         page: 2,
+        q: "vitamin",
         status: "pending",
         to: "2026-05-14",
       }),
@@ -20,6 +21,7 @@ describe("toDoctorPrescriptionsApiQuery", () => {
       from: "2026-05-01T00:00:00.000Z",
       limit: 10,
       page: 2,
+      q: "vitamin",
       status: "pending",
       to: "2026-05-14T23:59:59.999Z",
     });
@@ -36,6 +38,7 @@ describe("toDoctorPrescriptionsApiQuery", () => {
       from: undefined,
       limit: 10,
       page: 1,
+      q: undefined,
       status: undefined,
       to: undefined,
     });
@@ -48,11 +51,13 @@ describe("toPatientPrescriptionsApiQuery", () => {
       toPatientPrescriptionsApiQuery({
         limit: 10,
         page: 2,
+        q: "omega",
         status: "consumed",
       }),
     ).toEqual({
       limit: 10,
       page: 2,
+      q: "omega",
       status: "consumed",
     });
   });
@@ -67,6 +72,7 @@ describe("toPatientPrescriptionsApiQuery", () => {
     ).toEqual({
       limit: 10,
       page: 1,
+      q: undefined,
       status: undefined,
     });
   });

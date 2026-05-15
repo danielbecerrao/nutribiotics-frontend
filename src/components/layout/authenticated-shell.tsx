@@ -3,6 +3,7 @@
 import { Badge, Button } from "@/components/ui";
 import { loginPath, useAuth } from "@/lib/auth";
 import type { Role } from "@/lib/auth";
+import { useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils/cn";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -35,6 +36,7 @@ export function AuthenticatedShell({
   const pathname = usePathname();
   const router = useRouter();
   const { clearSession, user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   function handleLogout() {
     clearSession();
@@ -68,6 +70,14 @@ export function AuthenticatedShell({
                 </p>
               </div>
               {user ? <Badge tone="info">{roleLabels[user.role]}</Badge> : null}
+              <Button
+                aria-label="Toggle theme"
+                onClick={toggleTheme}
+                size="sm"
+                variant="secondary"
+              >
+                {theme === "dark" ? "Light" : "Dark"}
+              </Button>
               <Button onClick={handleLogout} size="sm" variant="secondary">
                 Sign out
               </Button>
