@@ -44,6 +44,16 @@ export function createPrescription(
   });
 }
 
+export function getPrescriptionById(accessToken: string, prescriptionId: string) {
+  return apiFetch<Prescription>(
+    `/prescriptions/${encodeURIComponent(prescriptionId)}`,
+    {
+      accessToken,
+      cache: "no-store",
+    },
+  );
+}
+
 export function toDoctorPrescriptionsApiQuery(
   query: DoctorPrescriptionsQuery,
 ): ApiQueryParams {
